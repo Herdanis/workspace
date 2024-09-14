@@ -1,6 +1,40 @@
 ---
 # tasks file for tmux
-- name: Install homebrew
-  ansible.builtin.include_tasks: homebrew.yaml
-- name: Install tmux
-  ansible.builtin.include_tasks: tmux.yaml
+- name: Install Tmux on macOS
+  community.general.homebrew:
+    name: tmux
+    state: present
+  when: ansible_os_family == "Darwin"
+
+- name: Update package cache (Debian/Ubuntu)
+  ansible.builtin.apt:
+    update_cache: true
+  when: ansible_os_family == "Debian"
+
+- name: Install Tmux on Debian/Ubuntu
+  ansible.builtin.apt:
+    name: tmux
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Install Tmux on CentOS/RHEL
+  ansible.builtin.dnf:
+    name: tmux
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Install Tmux on Arch Linux
+  community.general.pacman:
+    name: tmux
+    state: present
+  when: ansible_distribution == "Archlinux"
+
+- name: Verify Tmux installation
+  ansible.builtin.command: tmux -V
+  register: tmux_version
+  changed_when: false
+  failed_when: tmux_version.rc != 0
+
+- name: Display Tmux version
+  ansible.builtin.debug:
+    var: tmux_version.stdout_lines

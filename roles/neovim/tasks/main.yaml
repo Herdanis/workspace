@@ -1,6 +1,40 @@
 ---
 # tasks file for neovim
-- name: Install homebrew
-  ansible.builtin.include_tasks: homebrew.yaml
-- name: Install neovim
-  ansible.builtin.include_tasks: neovim.yaml
+- name: Install Neovim on macOS
+  community.general.homebrew:
+    name: neovim
+    state: present
+  when: ansible_os_family == "Darwin"
+
+- name: Update package cache (Debian/Ubuntu)
+  ansible.builtin.apt:
+    update_cache: true
+  when: ansible_os_family == "Debian"
+
+- name: Install Neovim on Debian/Ubuntu
+  ansible.builtin.apt:
+    name: neovim
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Install Neovim on CentOS/RHEL
+  ansible.builtin.dnf:
+    name: neovim
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Install Neovim on Arch Linux
+  community.general.pacman:
+    name: neovim
+    state: present
+  when: ansible_distribution == "Archlinux"
+
+- name: Verify Neovim installation
+  ansible.builtin.command: nvim --version
+  register: nvim_version
+  changed_when: false
+  failed_when: nvim_version.rc != 0
+
+- name: Display Neovim version
+  ansible.builtin.debug:
+    var: nvim_version.stdout_lines
