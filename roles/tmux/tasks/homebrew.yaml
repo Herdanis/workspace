@@ -1,0 +1,14 @@
+---
+- name: Install Homebrew (macOS only)
+  when: ansible_os_family == "Darwin"
+  block:
+    - name: Check if Homebrew is installed
+      ansible.builtin.command: brew --version
+      register: brew_check
+      ignore_errors: true
+      changed_when: false
+    - name: Install Homebrew
+      when: brew_check.rc != 0
+      ansible.builtin.shell: >
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      become: false

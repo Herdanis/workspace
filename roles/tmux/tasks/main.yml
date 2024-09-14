@@ -1,0 +1,6 @@
+---
+# tasks file for tmux
+- name: Install homebrew
+  ansible.builtin.include_tasks: homebrew.yaml
+- name: Install tmux
+  ansible.builtin.include_tasks: tmux.yaml

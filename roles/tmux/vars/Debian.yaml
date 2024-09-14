@@ -1,0 +1,3 @@
+---
+tmux_package: tmux
+tmux_check_command: "dpkg -s tmux"

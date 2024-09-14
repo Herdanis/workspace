@@ -3,9 +3,11 @@
   hosts: macos
   roles:
   - neovim
+  - tmux
 
 - name: install neovim linux
   hosts: linux
   become: true # sudo privileges
   roles:
   - neovim
+  - tmux
