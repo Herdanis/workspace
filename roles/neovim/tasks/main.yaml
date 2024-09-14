@@ -1,0 +1,6 @@
+---
+# tasks file for neovim
+- name: Install homebrew
+  ansible.builtin.include_tasks: homebrew.yaml
+- name: Install neovim
+  ansible.builtin.include_tasks: neovim.yaml

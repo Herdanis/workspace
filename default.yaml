@@ -1,0 +1,11 @@
+---
+- name: install neovim macos
+  hosts: macos
+  roles:
+  - neovim
+
+- name: install neovim linux
+  hosts: linux
+  become: true # sudo privileges
+  roles:
+  - neovim

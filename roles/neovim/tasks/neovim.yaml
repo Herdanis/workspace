@@ -1,0 +1,16 @@
+---
+- name: Include OS spesific variables
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yaml"
+
+- name: Check Neovim
+  ansible.builtin.command: "{{ neovim_check_command }}"
+  register: neovim_check
+  changed_when: false
+  failed_when: false
+
+- name: Install Neovim
+  ansible.builtin.package:
+    name: "{{ neovim_package }}"
+    state: present
+  when: neovim_check.rc != 0
+  become: "{{ ansible_os_family != 'Darwin' }}"

@@ -1,0 +1,3 @@
+---
+neovim_package: neovim
+neovim_check_command: "pacman -Qi neovim"
