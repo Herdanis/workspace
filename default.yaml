@@ -5,6 +5,7 @@
   - neovim
   - tmux
   - lazyvim
+  - tmux-config
 
 # - name: install neovim linux
 #   hosts: linux
