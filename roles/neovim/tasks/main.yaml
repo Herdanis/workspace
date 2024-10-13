@@ -6,28 +6,28 @@
     state: present
   when: ansible_os_family == "Darwin"
 
-- name: Update package cache (Debian/Ubuntu)
-  ansible.builtin.apt:
-    update_cache: true
-  when: ansible_os_family == "Debian"
-
-- name: Install Neovim on Debian/Ubuntu
-  ansible.builtin.apt:
-    name: neovim
-    state: present
-  when: ansible_os_family == "Debian"
-
-- name: Install Neovim on CentOS/RHEL
-  ansible.builtin.dnf:
-    name: neovim
-    state: present
-  when: ansible_os_family == "RedHat"
-
-- name: Install Neovim on Arch Linux
-  community.general.pacman:
-    name: neovim
-    state: present
-  when: ansible_distribution == "Archlinux"
+# - name: Update package cache (Debian/Ubuntu)
+#   ansible.builtin.apt:
+#     upgrade: true
+#   when: ansible_os_family == "Debian"
+#
+# - name: Install Neovim on Debian/Ubuntu
+#   ansible.builtin.apt:
+#     name: neovim
+#     state: present
+#   when: ansible_os_family == "Debian"
+#
+# - name: Install Neovim on CentOS/RHEL
+#   ansible.builtin.dnf:
+#     name: neovim
+#     state: present
+#   when: ansible_os_family == "RedHat"
+#
+# - name: Install Neovim on Arch Linux
+#   community.general.pacman:
+#     name: neovim
+#     state: present
+#   when: ansible_distribution == "Archlinux"
 
 - name: Verify Neovim installation
   ansible.builtin.command: nvim --version
