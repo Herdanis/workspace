@@ -1,0 +1,62 @@
+---
+# tasks file for lazyvim
+- name: Check Neovim config directory
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.config/nvim"
+  register: nvim_config
+
+- name: Backup existing Neovim config
+  ansible.builtin.command: mv {{ ansible_env.HOME }}/.config/nvim {{ ansible_env.HOME }}/.config/nvim.bak
+  when: nvim_config.stat.exists
+  changed_when: false
+
+- name: Ensure config directory available
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config"
+    state: directory
+    mode: '0755'
+  check_mode: true
+
+- name: Install git on macOS
+  community.general.homebrew:
+    name: git
+    state: present
+  when: ansible_os_family == "Darwin"
+
+# - name: Update package cache (Debian/Ubuntu)
+#   ansible.builtin.apt:
+#     upgrade: true
+#   when: ansible_os_family == "Debian"
+#
+# - name: Install git on Debian/Ubuntu
+#   ansible.builtin.apt:
+#     name: git
+#     state: present
+#   when: ansible_os_family == "Debian"
+#
+# - name: Install git on CentOS/RHEL
+#   ansible.builtin.dnf:
+#     name: git
+#     state: present
+#   when: ansible_os_family == "RedHat"
+#
+# - name: Install git on Arch Linux
+#   community.general.pacman:
+#     name: git
+#     state: present
+#   when: ansible_distribution == "Archlinux"
+
+- name: Clone LazyVim starter config
+  # become: false
+  ansible.builtin.git:
+    repo: "https://github.com/Herdanis/lazyvim"
+    dest: "{{ ansible_env.HOME }}/.config/nvim"
+    version: main
+
+- name: Set permissions for Neovim configuration
+  # become: false
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/nvim"
+    state: directory
+    recurse: true
+    mode: '0755'
