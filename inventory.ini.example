@@ -1,6 +1,8 @@
 [macos]
 localhost ansible_connection=local ; to instal on localhost
 
+
+; NOTE: not avaiable for now
 [linux]
 192.168.0.3
 192.168.2.4
