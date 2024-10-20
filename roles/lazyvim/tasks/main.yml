@@ -23,16 +23,18 @@
     state: present
   when: ansible_os_family == "Darwin"
 
-# - name: Update package cache (Debian/Ubuntu)
-#   ansible.builtin.apt:
-#     upgrade: true
-#   when: ansible_os_family == "Debian"
-#
-# - name: Install git on Debian/Ubuntu
-#   ansible.builtin.apt:
-#     name: git
-#     state: present
-#   when: ansible_os_family == "Debian"
+- name: Install Git on Debian/Ubuntu
+  when: ansible_os_family == "Debian"
+  become: true
+  block:
+    - name: Update package cache
+      ansible.builtin.apt:
+        upgrade: true
+
+    - name: Install git
+      ansible.builtin.apt:
+        name: git
+        state: present
 #
 # - name: Install git on CentOS/RHEL
 #   ansible.builtin.dnf:
@@ -46,17 +48,22 @@
 #     state: present
 #   when: ansible_distribution == "Archlinux"
 
-- name: Clone LazyVim starter config
-  # become: false
-  ansible.builtin.git:
-    repo: "https://github.com/Herdanis/lazyvim"
-    dest: "{{ ansible_env.HOME }}/.config/nvim"
-    version: main
+- name: Install LazyVim
+  block:
+    - name: Clone starter config
+      ansible.builtin.git:
+        repo: "https://github.com/Herdanis/lazyvim"
+        dest: "{{ ansible_env.HOME }}/.config/nvim"
+        version: main
 
-- name: Set permissions for Neovim configuration
-  # become: false
-  ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.config/nvim"
-    state: directory
-    recurse: true
-    mode: '0755'
+    - name: Set permissions configuration
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/.config/nvim"
+        state: directory
+        recurse: true
+        mode: '0755'
+
+    - name: Install c++ compiler
+      ansible.builtin.apt:
+        name: build-essential
+        state: present

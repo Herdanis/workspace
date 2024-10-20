@@ -6,16 +6,18 @@
     state: present
   when: ansible_os_family == "Darwin"
 
-# - name: Update package cache (Debian/Ubuntu)
-#   ansible.builtin.apt:
-#     update_cache: true
-#   when: ansible_os_family == "Debian"
-#
-# - name: Install Tmux on Debian/Ubuntu
-#   ansible.builtin.apt:
-#     name: tmux
-#     state: present
-#   when: ansible_os_family == "Debian"
+- name: Install Neovim on Debian/Ubuntu
+  when: ansible_os_family == "Debian"
+  become: true
+  block:
+    - name: Update package cache
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install Tmux
+      ansible.builtin.apt:
+        name: tmux
+        state: present
 #
 # - name: Install Tmux on CentOS/RHEL
 #   ansible.builtin.dnf:
@@ -29,12 +31,14 @@
 #     state: present
 #   when: ansible_distribution == "Archlinux"
 
-- name: Verify Tmux installation
-  ansible.builtin.command: tmux -V
-  register: tmux_version
-  changed_when: false
-  failed_when: tmux_version.rc != 0
+- name: Check Tmux installation
+  block:
+    - name: Verify installation
+      ansible.builtin.command: tmux -V
+      register: tmux_version
+      changed_when: false
+      failed_when: tmux_version.rc != 0
 
-- name: Display Tmux version
-  ansible.builtin.debug:
-    var: tmux_version.stdout_lines
+    - name: Display Tmux version
+      ansible.builtin.debug:
+        var: tmux_version.stdout_lines

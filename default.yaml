@@ -7,10 +7,10 @@
   - lazyvim
   - tmux-config
 
-# - name: install neovim linux
-#   hosts: linux
-#   become: true # sudo privileges
-#   roles:
-#   - neovim
-#   - tmux
-#   - lazyvim
+- name: install neovim linux
+  hosts: linux
+  roles:
+    - neovim
+    - tmux
+    - lazyvim
+    # - tmux-config

@@ -6,16 +6,34 @@
     state: present
   when: ansible_os_family == "Darwin"
 
-# - name: Update package cache (Debian/Ubuntu)
-#   ansible.builtin.apt:
-#     upgrade: true
-#   when: ansible_os_family == "Debian"
-#
-# - name: Install Neovim on Debian/Ubuntu
-#   ansible.builtin.apt:
-#     name: neovim
-#     state: present
-#   when: ansible_os_family == "Debian"
+- name: Install Neovim on Debian/Ubuntu
+  when: ansible_os_family == "Debian"
+  block:
+    - name: Download Neovim
+      become: true
+      ansible.builtin.get_url:
+        url: https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
+        dest: /tmp/nvim-linux64.tar.gz
+        mode: 555
+
+    - name: Remove existing Neovim installation
+      become: true
+      ansible.builtin.file:
+        path: /opt/nvim
+        state: absent
+
+    - name: Extract Neovim
+      become: true
+      ansible.builtin.unarchive:
+        src: /tmp/nvim-linux64.tar.gz
+        dest: /opt
+        remote_src: true
+
+    - name: Add Neovim to PATH
+      ansible.builtin.lineinfile:
+        path: "{{ ansible_env.HOME }}/.bashrc"
+        line: 'export PATH="$PATH:/opt/nvim-linux64/bin"'
+        state: present
 #
 # - name: Install Neovim on CentOS/RHEL
 #   ansible.builtin.dnf:
@@ -29,12 +47,22 @@
 #     state: present
 #   when: ansible_distribution == "Archlinux"
 
-- name: Verify Neovim installation
-  ansible.builtin.command: nvim --version
-  register: nvim_version
-  changed_when: false
-  failed_when: nvim_version.rc != 0
+- name: Check Neovim installation
+  block:
+    - name: Verify installation
+      ansible.builtin.command: nvim --version
+      register: nvim_version
+      changed_when: false
+      failed_when: nvim_version.rc != 0
+      when: ansible_os_family == "Darwin"
 
-- name: Display Neovim version
-  ansible.builtin.debug:
-    var: nvim_version.stdout_lines
+    - name: Verify installation (Ubuntu/Debian)
+      ansible.builtin.command: /opt/nvim-linux64/bin/nvim --version
+      register: nvim_version
+      changed_when: false
+      failed_when: nvim_version.rc != 0
+      when: ansible_os_family == "Debian"
+
+    - name: Display version
+      ansible.builtin.debug:
+        var: nvim_version.stdout_lines
