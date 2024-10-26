@@ -4,13 +4,11 @@
   roles:
   - neovim
   - tmux
-  - lazyvim
-  - tmux-config
+  - dotfiles
 
-- name: install neovim linux
+- name: install neovim remote linux
   hosts: linux
   roles:
     - neovim
     - tmux
-    - lazyvim
-    # - tmux-config
+    - dotfiles
