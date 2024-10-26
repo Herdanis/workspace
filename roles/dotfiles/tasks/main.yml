@@ -1,0 +1,77 @@
+---
+# tasks file for dotfiles config
+- name: Check dotfiles directory
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.dotfiles"
+  register: dotfiles_config
+
+- name: Backup existing dotfiles config
+  ansible.builtin.command: mv {{ ansible_env.HOME }}/.dotfiles {{ ansible_env.HOME }}/.dotfiles_bak
+  when: dotfiles_config.stat.exists
+  changed_when: false
+
+- name: Install dependecies
+  when: ansible_os_family == "Darwin"
+  block:
+    - name: Install homebrew on macOS
+      community.general.homebrew:
+        state: present
+        name: bundle
+
+    - name: Install packages from Brewfile
+      ansible.builtin.command: brew bundle install --file={{ ansible_env.HOME }}/.dotfiles/Brewfile
+      register: brew_result
+      changed_when: "'Installing' in brew_result.stdout"
+
+    - name: Cleanup old versions
+      ansible.builtin.command: brew cleanup
+      when: brew_result.changed
+      changed_when: false
+
+
+- name: Install Git on Debian/Ubuntu
+  when: ansible_os_family == "Debian"
+  become: true
+  block:
+    - name: Update package cache
+      ansible.builtin.apt:
+        upgrade: true
+
+    - name: Install git
+      ansible.builtin.apt:
+        name:
+          - git
+          - stow
+          - tree
+          - fzf
+          - lazygit
+        state: present
+
+- name: Setup dotfiles config
+  block:
+    - name: Clone configuration
+      ansible.builtin.git:
+        repo: "https://github.com/Herdanis/dotfiles.git"
+        dest: "{{ ansible_env.HOME }}/.dotfiles"
+        version: main
+
+    - name: Set permissions for configuration
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/.dotfiles"
+        state: directory
+        recurse: true
+        mode: '0755'
+
+    - name: Create symlink with stow
+      ansible.builtin.command: "stow -vR -d {{ ansible_env.HOME }}/.dotfiles -t {{ ansible_env.HOME }}"
+      changed_when: false
+
+    - name: Clone TPM repository
+      ansible.builtin.git:
+        repo: 'https://github.com/tmux-plugins/tpm'
+        dest: "{{ ansible_env.HOME }}/.dotfiles/.config/tmux/plugins/tpm"
+        version: master
+
+    - name: Install Tmux plugins
+      ansible.builtin.command: "{{ ansible_env.HOME }}/.dotfiles/.config/tmux/plugins/tpm/tpm"
+      changed_when: false

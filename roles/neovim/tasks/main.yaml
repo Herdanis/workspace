@@ -4,6 +4,7 @@
   community.general.homebrew:
     name: neovim
     state: present
+    update_homebrew: true
   when: ansible_os_family == "Darwin"
 
 - name: Install Neovim on Debian/Ubuntu
