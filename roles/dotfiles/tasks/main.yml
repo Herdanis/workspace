@@ -29,7 +29,7 @@
       changed_when: false
 
 
-- name: Install Git on Debian/Ubuntu
+- name: Install dependecies on Debian/Ubuntu
   when: ansible_os_family == "Debian"
   become: true
   block:
@@ -37,14 +37,15 @@
       ansible.builtin.apt:
         upgrade: true
 
-    - name: Install git
+    - name: Install dependecies
       ansible.builtin.apt:
         name:
           - git
           - stow
           - tree
           - fzf
-          - lazygit
+          - zsh
+          - build-essential
         state: present
 
 - name: Setup dotfiles config
@@ -63,7 +64,9 @@
         mode: '0755'
 
     - name: Create symlink with stow
-      ansible.builtin.command: "stow -vR -d {{ ansible_env.HOME }}/.dotfiles -t {{ ansible_env.HOME }}"
+      ansible.builtin.command:
+        cmd: "stow -vR ."
+        chdir: "{{ ansible_env.HOME }}/.dotfiles"
       changed_when: false
 
     - name: Clone TPM repository
@@ -73,5 +76,5 @@
         version: master
 
     - name: Install Tmux plugins
-      ansible.builtin.command: "{{ ansible_env.HOME }}/.dotfiles/.config/tmux/plugins/tpm/tpm"
+      ansible.builtin.command: "{{ ansible_env.HOME }}/.dotfiles/.config/tmux/plugins/tpm/bin/install_plugins"
       changed_when: false
